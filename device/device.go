@@ -11,12 +11,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/amnezia-vpn/amneziawg-go/conn"
-	"github.com/amnezia-vpn/amneziawg-go/ipc"
-	"github.com/amnezia-vpn/amneziawg-go/ratelimiter"
-	"github.com/amnezia-vpn/amneziawg-go/rwcancel"
-	"github.com/amnezia-vpn/amneziawg-go/tun"
-	"github.com/tevino/abool/v2"
+	"github.com/metacubex/wireguard-go/conn"
+	"github.com/metacubex/wireguard-go/ipc"
+	"github.com/metacubex/wireguard-go/ratelimiter"
+	"github.com/metacubex/wireguard-go/rwcancel"
+	"github.com/metacubex/wireguard-go/tun"
 )
 
 type Device struct {
@@ -92,7 +91,7 @@ type Device struct {
 	closed   chan struct{}
 	log      *Logger
 
-	isASecOn abool.AtomicBool
+	isASecOn atomic.Bool
 	aSecMux  sync.RWMutex
 	aSecCfg  aSecCfgType
 }
@@ -557,7 +556,7 @@ func (device *Device) BindClose() error {
 	return err
 }
 func (device *Device) isAdvancedSecurityOn() bool {
-	return device.isASecOn.IsSet()
+	return device.isASecOn.Load()
 }
 
 func (device *Device) resetProtocol() {
@@ -798,7 +797,7 @@ func (device *Device) handlePostConfig(tempASecCfg *aSecCfgType) (err error) {
 		}
 	}
 
-	device.isASecOn.SetTo(isASecOn)
+	device.isASecOn.Store(isASecOn)
 	device.aSecMux.Unlock()
 
 	return err
