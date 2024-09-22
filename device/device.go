@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/metacubex/wireguard-go/conn"
+	"github.com/metacubex/wireguard-go/device"
 	"github.com/metacubex/wireguard-go/ipc"
 	"github.com/metacubex/wireguard-go/ratelimiter"
 	"github.com/metacubex/wireguard-go/rwcancel"
@@ -89,7 +90,7 @@ type Device struct {
 
 	ipcMutex sync.RWMutex
 	closed   chan struct{}
-	log      *Logger
+	log      *device.Logger
 
 	isASecOn atomic.Bool
 	aSecMux  sync.RWMutex
@@ -300,7 +301,7 @@ func (device *Device) SetPrivateKey(sk NoisePrivateKey) error {
 	return nil
 }
 
-func NewDevice(tunDevice tun.Device, bind conn.Bind, logger *Logger, workers int) *Device {
+func NewDevice(tunDevice tun.Device, bind conn.Bind, logger *device.Logger, workers int) *Device {
 	device := new(Device)
 	device.state.state.Store(uint32(deviceStateDown))
 	device.closed = make(chan struct{})
