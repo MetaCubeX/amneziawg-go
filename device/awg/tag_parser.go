@@ -2,7 +2,6 @@ package awg
 
 import (
 	"fmt"
-	"maps"
 	"regexp"
 	"strings"
 )
@@ -62,7 +61,9 @@ func Parse(name, input string) (TagJunkPacketGenerator, error) {
 	}
 
 	uniqueTagCheck := make(map[EnumTag]bool, len(uniqueTags))
-	maps.Copy(uniqueTagCheck, uniqueTags)
+	for k, v := range uniqueTags {
+		uniqueTagCheck[k] = v
+	}
 
 	// skip byproduct of split
 	inputSlice = inputSlice[1:]

@@ -4,7 +4,8 @@ import (
 	"bytes"
 	crand "crypto/rand"
 	"fmt"
-	v2 "math/rand/v2"
+
+	v2 "github.com/metacubex/randv2"
 )
 
 type junkCreator struct {
@@ -28,7 +29,7 @@ func (jc *junkCreator) CreateJunkPackets(junks *[][]byte) error {
 		return nil
 	}
 
-	for range jc.aSecCfg.JunkPacketCount {
+	for i := 0; i < jc.aSecCfg.JunkPacketCount; i++ {
 		packetSize := jc.randomPacketSize()
 		junk, err := jc.randomJunkWithSize(packetSize)
 		if err != nil {

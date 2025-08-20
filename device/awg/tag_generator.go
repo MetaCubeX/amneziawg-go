@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	v2 "math/rand/v2"
+	v2 "github.com/metacubex/randv2"
 	// "go.uber.org/atomic"
 )
 
