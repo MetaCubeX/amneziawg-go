@@ -7,8 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/tevino/abool"
+	"sync/atomic"
 )
 
 type aSecCfgType struct {
@@ -95,7 +94,7 @@ func NewLimits(limits []Limit) Limits {
 }
 
 type Protocol struct {
-	IsASecOn abool.AtomicBool
+	IsASecOn atomic.Bool
 	// TODO: revision the need of the mutex
 	ASecMux     sync.RWMutex
 	ASecCfg     aSecCfgType

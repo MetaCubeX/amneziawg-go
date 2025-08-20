@@ -49,7 +49,7 @@ func (generators *TagJunkPacketGenerators) GeneratePackets() [][]byte {
 	for i, tagGenerator := range generators.tagGenerators {
 		rv = append(rv, make([]byte, tagGenerator.packetSize))
 		copy(rv[i], tagGenerator.generatePacket())
-		PacketCounter.Inc()
+		PacketCounter.Add(^uint64(0))
 	}
 	PacketCounter.Add(uint64(generators.DefaultJunkCount))
 

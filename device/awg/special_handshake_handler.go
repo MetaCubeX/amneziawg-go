@@ -2,22 +2,20 @@ package awg
 
 import (
 	"errors"
+	"sync/atomic"
 	"time"
-
-	"github.com/tevino/abool"
-	"go.uber.org/atomic"
 )
 
 // TODO: atomic?/ and better way to use this
-var PacketCounter *atomic.Uint64 = atomic.NewUint64(0)
+var PacketCounter atomic.Uint64
 
 // TODO
 var WaitResponse = struct {
 	Channel    chan struct{}
-	ShouldWait *abool.AtomicBool
+	ShouldWait atomic.Bool
 }{
 	make(chan struct{}, 1),
-	abool.New(),
+	atomic.Bool{},
 }
 
 type SpecialHandshakeHandler struct {

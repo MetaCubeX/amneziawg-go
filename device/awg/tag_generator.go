@@ -171,9 +171,9 @@ type WaitResponseGenerator struct {
 }
 
 func (c *WaitResponseGenerator) Generate() []byte {
-	WaitResponse.ShouldWait.Set()
+	WaitResponse.ShouldWait.Store(true)
 	<-WaitResponse.Channel
-	WaitResponse.ShouldWait.UnSet()
+	WaitResponse.ShouldWait.Store(false)
 	return []byte{}
 }
 

@@ -814,7 +814,7 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 		}
 	}
 
-	device.awg.IsASecOn.SetTo(isASecOn)
+	device.awg.IsASecOn.Store(isASecOn)
 	var err error
 	device.awg.JunkCreator, err = awg.NewJunkCreator(device.awg.ASecCfg)
 	if err != nil {
