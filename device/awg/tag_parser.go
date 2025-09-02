@@ -15,6 +15,8 @@ const (
 	CounterEnumTag      EnumTag = "c"
 	TimestampEnumTag    EnumTag = "t"
 	RandomBytesEnumTag  EnumTag = "r"
+	RandomASCIIEnumTag  EnumTag = "rc"
+	RandomDigitEnumTag  EnumTag = "rd"
 	WaitTimeoutEnumTag  EnumTag = "wt"
 	WaitResponseEnumTag EnumTag = "wr"
 )
@@ -23,7 +25,9 @@ var generatorCreator = map[EnumTag]newGenerator{
 	BytesEnumTag:       newBytesGenerator,
 	CounterEnumTag:     newPacketCounterGenerator,
 	TimestampEnumTag:   newTimestampGenerator,
-	RandomBytesEnumTag: newRandomPacketGenerator,
+	RandomBytesEnumTag: newRandomBytesGenerator,
+	RandomASCIIEnumTag: newRandomASCIIGenerator,
+	RandomDigitEnumTag: newRandomDigitGenerator,
 	WaitTimeoutEnumTag: newWaitTimeoutGenerator,
 	// WaitResponseEnumTag: newWaitResponseGenerator,
 }
@@ -54,7 +58,7 @@ func parseTag(input string) (Tag, error) {
 	return tag, nil
 }
 
-func Parse(name, input string) (TagJunkPacketGenerator, error) {
+func ParseTagJunkGenerator(name, input string) (TagJunkPacketGenerator, error) {
 	inputSlice := strings.Split(input, "<")
 	if len(inputSlice) <= 1 {
 		return TagJunkPacketGenerator{}, fmt.Errorf("empty input: %s", input)
