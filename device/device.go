@@ -133,6 +133,16 @@ type Device struct {
 
 	version Version
 	awg     awg.Protocol
+
+	noise struct {
+		MessageInitiationType  uint32
+		MessageResponseType    uint32
+		MessageCookieReplyType uint32
+		MessageTransportType   uint32
+
+		packetSizeToMsgType map[int]uint32
+		msgTypeToJunkSize   map[uint32]int
+	}
 }
 
 // deviceState represents the state of a Device.
@@ -328,6 +338,10 @@ func (device *Device) SetPrivateKey(sk NoisePrivateKey) error {
 
 func NewDevice(tunDevice tun.Device, bind conn.Bind, logger *device.Logger, workers int) *Device {
 	device := new(Device)
+	device.noise.MessageInitiationType = DefaultMessageInitiationType
+	device.noise.MessageResponseType = DefaultMessageResponseType
+	device.noise.MessageCookieReplyType = DefaultMessageCookieReplyType
+	device.noise.MessageTransportType = DefaultMessageTransportType
 	device.state.state.Store(uint32(deviceStateDown))
 	device.closed = make(chan struct{})
 	device.log = logger
@@ -589,10 +603,10 @@ func (device *Device) isAWG() bool {
 
 func (device *Device) resetProtocol() {
 	// restore default message type values
-	MessageInitiationType = DefaultMessageInitiationType
-	MessageResponseType = DefaultMessageResponseType
-	MessageCookieReplyType = DefaultMessageCookieReplyType
-	MessageTransportType = DefaultMessageTransportType
+	device.noise.MessageInitiationType = DefaultMessageInitiationType
+	device.noise.MessageResponseType = DefaultMessageResponseType
+	device.noise.MessageCookieReplyType = DefaultMessageCookieReplyType
+	device.noise.MessageTransportType = DefaultMessageTransportType
 }
 
 func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
@@ -666,10 +680,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 		device.log.Verbosef("UAPI: Updating init_packet_magic_header")
 		magicHeaders[0] = tempAwg.Cfg.MagicHeaders.Values[0]
 
-		MessageInitiationType = magicHeaders[0].Min
+		device.noise.MessageInitiationType = magicHeaders[0].Min
 	} else {
 		device.log.Verbosef("UAPI: Using default init type")
-		MessageInitiationType = DefaultMessageInitiationType
+		device.noise.MessageInitiationType = DefaultMessageInitiationType
 		magicHeaders[0] = awg.NewMagicHeaderSameValue(DefaultMessageInitiationType)
 	}
 
@@ -678,10 +692,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 
 		device.log.Verbosef("UAPI: Updating response_packet_magic_header")
 		magicHeaders[1] = tempAwg.Cfg.MagicHeaders.Values[1]
-		MessageResponseType = magicHeaders[1].Min
+		device.noise.MessageResponseType = magicHeaders[1].Min
 	} else {
 		device.log.Verbosef("UAPI: Using default response type")
-		MessageResponseType = DefaultMessageResponseType
+		device.noise.MessageResponseType = DefaultMessageResponseType
 		magicHeaders[1] = awg.NewMagicHeaderSameValue(DefaultMessageResponseType)
 	}
 
@@ -690,10 +704,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 
 		device.log.Verbosef("UAPI: Updating underload_packet_magic_header")
 		magicHeaders[2] = tempAwg.Cfg.MagicHeaders.Values[2]
-		MessageCookieReplyType = magicHeaders[2].Min
+		device.noise.MessageCookieReplyType = magicHeaders[2].Min
 	} else {
 		device.log.Verbosef("UAPI: Using default underload type")
-		MessageCookieReplyType = DefaultMessageCookieReplyType
+		device.noise.MessageCookieReplyType = DefaultMessageCookieReplyType
 		magicHeaders[2] = awg.NewMagicHeaderSameValue(DefaultMessageCookieReplyType)
 	}
 
@@ -702,10 +716,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 
 		device.log.Verbosef("UAPI: Updating transport_packet_magic_header")
 		magicHeaders[3] = tempAwg.Cfg.MagicHeaders.Values[3]
-		MessageTransportType = magicHeaders[3].Min
+		device.noise.MessageTransportType = magicHeaders[3].Min
 	} else {
 		device.log.Verbosef("UAPI: Using default transport type")
-		MessageTransportType = DefaultMessageTransportType
+		device.noise.MessageTransportType = DefaultMessageTransportType
 		magicHeaders[3] = awg.NewMagicHeaderSameValue(DefaultMessageTransportType)
 	}
 
@@ -716,10 +730,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 	}
 
 	isSameHeaderMap := map[uint32]struct{}{
-		MessageInitiationType:  {},
-		MessageResponseType:    {},
-		MessageCookieReplyType: {},
-		MessageTransportType:   {},
+		device.noise.MessageInitiationType:  {},
+		device.noise.MessageResponseType:    {},
+		device.noise.MessageCookieReplyType: {},
+		device.noise.MessageTransportType:   {},
 	}
 
 	// size will be different if same values
@@ -727,10 +741,10 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 		errs = append(errs, ipcErrorf(
 			ipc.IpcErrorInvalid,
 			`magic headers should differ; got: init:%d; recv:%d; unde:%d; tran:%d`,
-			MessageInitiationType,
-			MessageResponseType,
-			MessageCookieReplyType,
-			MessageTransportType,
+			device.noise.MessageInitiationType,
+			device.noise.MessageResponseType,
+			device.noise.MessageCookieReplyType,
+			device.noise.MessageTransportType,
 		),
 		)
 	}
@@ -825,18 +839,18 @@ func (device *Device) handlePostConfig(tempAwg *awg.Protocol) error {
 		),
 		)
 	} else {
-		msgTypeToJunkSize = map[uint32]int{
-			MessageInitiationType:  device.awg.Cfg.InitHeaderJunkSize,
-			MessageResponseType:    device.awg.Cfg.ResponseHeaderJunkSize,
-			MessageCookieReplyType: device.awg.Cfg.CookieReplyHeaderJunkSize,
-			MessageTransportType:   device.awg.Cfg.TransportHeaderJunkSize,
+		device.noise.msgTypeToJunkSize = map[uint32]int{
+			device.noise.MessageInitiationType:  device.awg.Cfg.InitHeaderJunkSize,
+			device.noise.MessageResponseType:    device.awg.Cfg.ResponseHeaderJunkSize,
+			device.noise.MessageCookieReplyType: device.awg.Cfg.CookieReplyHeaderJunkSize,
+			device.noise.MessageTransportType:   device.awg.Cfg.TransportHeaderJunkSize,
 		}
 
-		packetSizeToMsgType = map[int]uint32{
-			newInitSize:      MessageInitiationType,
-			newResponseSize:  MessageResponseType,
-			newCookieSize:    MessageCookieReplyType,
-			newTransportSize: MessageTransportType,
+		device.noise.packetSizeToMsgType = map[int]uint32{
+			newInitSize:      device.noise.MessageInitiationType,
+			newResponseSize:  device.noise.MessageResponseType,
+			newCookieSize:    device.noise.MessageCookieReplyType,
+			newTransportSize: device.noise.MessageTransportType,
 		}
 	}
 
@@ -868,7 +882,7 @@ func (device *Device) ProcessAWGPacket(size int, packet *[]byte, buffer *[MaxMes
 	// 	awg.WaitResponse.Channel <- struct{}{}
 	// }
 
-	expectedMsgType, isKnownSize := packetSizeToMsgType[size]
+	expectedMsgType, isKnownSize := device.noise.packetSizeToMsgType[size]
 	if !isKnownSize {
 		msgType, err := device.handleTransport(size, packet, buffer)
 
@@ -879,7 +893,7 @@ func (device *Device) ProcessAWGPacket(size int, packet *[]byte, buffer *[MaxMes
 		return msgType, nil
 	}
 
-	junkSize := msgTypeToJunkSize[expectedMsgType]
+	junkSize := device.noise.msgTypeToJunkSize[expectedMsgType]
 
 	// transport size can align with other header types;
 	// making sure we have the right actualMsgType
@@ -922,7 +936,7 @@ func (device *Device) handleTransport(size int, packet *[]byte, buffer *[MaxMess
 		return 0, fmt.Errorf("get msg type: %w", err)
 	}
 
-	if msgType != MessageTransportType {
+	if msgType != device.noise.MessageTransportType {
 		// probably a junk packet
 		return 0, fmt.Errorf("Received message with unknown type: %d", msgType)
 	}

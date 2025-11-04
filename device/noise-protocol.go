@@ -59,13 +59,6 @@ const (
 	DefaultMessageTransportType   uint32 = 4
 )
 
-var (
-	MessageInitiationType  uint32 = DefaultMessageInitiationType
-	MessageResponseType    uint32 = DefaultMessageResponseType
-	MessageCookieReplyType uint32 = DefaultMessageCookieReplyType
-	MessageTransportType   uint32 = DefaultMessageTransportType
-)
-
 const (
 	MessageInitiationSize      = 148                                           // size of handshake initiation message
 	MessageResponseSize        = 92                                            // size of response message
@@ -80,11 +73,6 @@ const (
 	MessageTransportOffsetReceiver = 4
 	MessageTransportOffsetCounter  = 8
 	MessageTransportOffsetContent  = 16
-)
-
-var (
-	packetSizeToMsgType map[int]uint32
-	msgTypeToJunkSize   map[uint32]int
 )
 
 /* Type is an 8-bit field, followed by 3 nul bytes,
@@ -276,7 +264,7 @@ func (device *Device) ConsumeMessageInitiation(msg *MessageInitiation) *Peer {
 
 	device.awg.Mux.RLock()
 
-	if msg.Type != MessageInitiationType {
+	if msg.Type != device.noise.MessageInitiationType {
 		device.awg.Mux.RUnlock()
 		return nil
 	}
@@ -459,7 +447,7 @@ func (device *Device) CreateMessageResponse(peer *Peer) (*MessageResponse, error
 func (device *Device) ConsumeMessageResponse(msg *MessageResponse) *Peer {
 	device.awg.Mux.RLock()
 
-	if msg.Type != MessageResponseType {
+	if msg.Type != device.noise.MessageResponseType {
 		device.awg.Mux.RUnlock()
 		return nil
 	}

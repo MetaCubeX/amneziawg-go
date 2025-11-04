@@ -154,7 +154,7 @@ func (device *Device) RoutineReceiveIncoming(
 
 			// check if transport
 
-			case MessageTransportType:
+			case device.noise.MessageTransportType:
 
 				// check size
 
@@ -201,17 +201,17 @@ func (device *Device) RoutineReceiveIncoming(
 
 			// otherwise it is a fixed size & handshake related packet
 
-			case MessageInitiationType:
+			case device.noise.MessageInitiationType:
 				if len(packet) != MessageInitiationSize {
 					continue
 				}
 
-			case MessageResponseType:
+			case device.noise.MessageResponseType:
 				if len(packet) != MessageResponseSize {
 					continue
 				}
 
-			case MessageCookieReplyType:
+			case device.noise.MessageCookieReplyType:
 				if len(packet) != MessageCookieReplySize {
 					continue
 				}
@@ -298,7 +298,7 @@ func (device *Device) RoutineHandshake(id int) {
 
 		switch elem.msgType {
 
-		case MessageCookieReplyType:
+		case device.noise.MessageCookieReplyType:
 
 			// unmarshal packet
 
@@ -334,7 +334,7 @@ func (device *Device) RoutineHandshake(id int) {
 
 			goto skip
 
-		case MessageInitiationType, MessageResponseType:
+		case device.noise.MessageInitiationType, device.noise.MessageResponseType:
 
 			// check mac fields and maybe ratelimit
 
@@ -369,7 +369,7 @@ func (device *Device) RoutineHandshake(id int) {
 		// handle handshake initiation/response content
 
 		switch elem.msgType {
-		case MessageInitiationType:
+		case device.noise.MessageInitiationType:
 			// unmarshal
 			var msg MessageInitiation
 			reader := bytes.NewReader(elem.packet)
@@ -402,7 +402,7 @@ func (device *Device) RoutineHandshake(id int) {
 
 			peer.SendHandshakeResponse()
 
-		case MessageResponseType:
+		case device.noise.MessageResponseType:
 
 			// unmarshal
 
