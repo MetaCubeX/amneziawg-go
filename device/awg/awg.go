@@ -28,6 +28,8 @@ type Protocol struct {
 	JunkCreator JunkCreator
 
 	HandshakeHandler SpecialHandshakeHandler
+
+	PacketCounter atomic.Uint64
 }
 
 func (protocol *Protocol) CreateInitHeaderJunk() ([]byte, error) {

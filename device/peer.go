@@ -12,7 +12,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/metacubex/amneziawg-go/device/awg"
 	"github.com/metacubex/wireguard-go/conn"
 )
 
@@ -117,7 +116,7 @@ func (device *Device) NewPeer(pk NoisePublicKey) (*Peer, error) {
 func (peer *Peer) SendAndCountBuffers(buffers [][]byte) error {
 	err := peer.SendBuffers(buffers)
 	if err == nil {
-		awg.PacketCounter.Add(uint64(len(buffers)))
+		peer.device.awg.PacketCounter.Add(uint64(len(buffers)))
 		return nil
 	}
 

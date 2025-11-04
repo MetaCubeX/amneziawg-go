@@ -1,6 +1,8 @@
 package awg
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type TagJunkPacketGenerators struct {
 	tagGenerators    []TagJunkPacketGenerator
@@ -43,15 +45,15 @@ func (generators *TagJunkPacketGenerators) Validate() error {
 	return nil
 }
 
-func (generators *TagJunkPacketGenerators) GeneratePackets() [][]byte {
+func (generators *TagJunkPacketGenerators) GeneratePackets(protocol *Protocol) [][]byte {
 	var rv = make([][]byte, 0, generators.length+generators.DefaultJunkCount)
 
 	for i, tagGenerator := range generators.tagGenerators {
 		rv = append(rv, make([]byte, tagGenerator.packetSize))
-		copy(rv[i], tagGenerator.generatePacket())
-		PacketCounter.Add(^uint64(0))
+		copy(rv[i], tagGenerator.generatePacket(protocol))
+		protocol.PacketCounter.Add(^uint64(0))
 	}
-	PacketCounter.Add(uint64(generators.DefaultJunkCount))
+	protocol.PacketCounter.Add(uint64(generators.DefaultJunkCount))
 
 	return rv
 }

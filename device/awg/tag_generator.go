@@ -14,7 +14,7 @@ import (
 )
 
 type Generator interface {
-	Generate() []byte
+	Generate(protocol *Protocol) []byte
 	Size() int
 }
 
@@ -25,7 +25,7 @@ type BytesGenerator struct {
 	size  int
 }
 
-func (bg *BytesGenerator) Generate() []byte {
+func (bg *BytesGenerator) Generate(protocol *Protocol) []byte {
 	return bg.value
 }
 
@@ -109,7 +109,7 @@ func newRandomBytesGenerator(param string) (Generator, error) {
 	return &RandomBytesGenerator{randomGeneratorBase: rpgBase}, nil
 }
 
-func (rpg *RandomBytesGenerator) Generate() []byte {
+func (rpg *RandomBytesGenerator) Generate(protocol *Protocol) []byte {
 	return rpg.generate()
 }
 
@@ -128,7 +128,7 @@ func newRandomASCIIGenerator(param string) (Generator, error) {
 	return &RandomASCIIGenerator{randomGeneratorBase: rpgBase}, nil
 }
 
-func (rpg *RandomASCIIGenerator) Generate() []byte {
+func (rpg *RandomASCIIGenerator) Generate(protocol *Protocol) []byte {
 	junk := rpg.generate()
 
 	result := make([]byte, rpg.size)
@@ -152,7 +152,7 @@ func newRandomDigitGenerator(param string) (Generator, error) {
 	return &RandomDigitGenerator{randomGeneratorBase: rpgBase}, nil
 }
 
-func (rpg *RandomDigitGenerator) Generate() []byte {
+func (rpg *RandomDigitGenerator) Generate(protocol *Protocol) []byte {
 	junk := rpg.generate()
 
 	result := make([]byte, rpg.size)
@@ -166,7 +166,7 @@ func (rpg *RandomDigitGenerator) Generate() []byte {
 type TimestampGenerator struct {
 }
 
-func (tg *TimestampGenerator) Generate() []byte {
+func (tg *TimestampGenerator) Generate(protocol *Protocol) []byte {
 	buf := make([]byte, 8)
 	binary.BigEndian.PutUint64(buf, uint64(time.Now().Unix()))
 	return buf
@@ -188,7 +188,7 @@ type WaitTimeoutGenerator struct {
 	waitTimeout time.Duration
 }
 
-func (wtg *WaitTimeoutGenerator) Generate() []byte {
+func (wtg *WaitTimeoutGenerator) Generate(protocol *Protocol) []byte {
 	time.Sleep(wtg.waitTimeout)
 	return []byte{}
 }
@@ -215,10 +215,10 @@ func newWaitTimeoutGenerator(param string) (Generator, error) {
 type PacketCounterGenerator struct {
 }
 
-func (c *PacketCounterGenerator) Generate() []byte {
+func (c *PacketCounterGenerator) Generate(protocol *Protocol) []byte {
 	buf := make([]byte, 8)
 	// TODO: better way to handle counter tag
-	binary.BigEndian.PutUint64(buf, PacketCounter.Load())
+	binary.BigEndian.PutUint64(buf, protocol.PacketCounter.Load())
 	return buf
 }
 
@@ -237,7 +237,7 @@ func newPacketCounterGenerator(param string) (Generator, error) {
 type WaitResponseGenerator struct {
 }
 
-func (c *WaitResponseGenerator) Generate() []byte {
+func (c *WaitResponseGenerator) Generate(protocol *Protocol) []byte {
 	WaitResponse.ShouldWait.Store(true)
 	<-WaitResponse.Channel
 	WaitResponse.ShouldWait.Store(false)

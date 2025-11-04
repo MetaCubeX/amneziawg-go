@@ -40,7 +40,7 @@ func (handler *SpecialHandshakeHandler) Validate() error {
 	return errors.Join(errs...)
 }
 
-func (handler *SpecialHandshakeHandler) GenerateSpecialJunk() [][]byte {
+func (handler *SpecialHandshakeHandler) GenerateSpecialJunk(protocol *Protocol) [][]byte {
 	if !handler.SpecialJunk.IsDefined() {
 		return nil
 	}
@@ -52,7 +52,7 @@ func (handler *SpecialHandshakeHandler) GenerateSpecialJunk() [][]byte {
 		return nil
 	}
 
-	rv := handler.SpecialJunk.GeneratePackets()
+	rv := handler.SpecialJunk.GeneratePackets(protocol)
 	handler.nextItime = time.Now().Add(handler.ITimeout)
 
 	return rv
@@ -62,10 +62,10 @@ func (handler *SpecialHandshakeHandler) isTimeToSendSpecial() bool {
 	return time.Now().After(handler.nextItime)
 }
 
-func (handler *SpecialHandshakeHandler) GenerateControlledJunk() [][]byte {
+func (handler *SpecialHandshakeHandler) GenerateControlledJunk(protocol *Protocol) [][]byte {
 	if !handler.ControlledJunk.IsDefined() {
 		return nil
 	}
 
-	return handler.ControlledJunk.GeneratePackets()
+	return handler.ControlledJunk.GeneratePackets(protocol)
 }

@@ -26,10 +26,10 @@ func (tg *TagJunkPacketGenerator) append(generator Generator) {
 	tg.packetSize += generator.Size()
 }
 
-func (tg *TagJunkPacketGenerator) generatePacket() []byte {
+func (tg *TagJunkPacketGenerator) generatePacket(protocol *Protocol) []byte {
 	packet := make([]byte, 0, tg.packetSize)
 	for _, generator := range tg.generators {
-		packet = append(packet, generator.Generate()...)
+		packet = append(packet, generator.Generate(protocol)...)
 	}
 
 	return packet

@@ -132,9 +132,9 @@ func (peer *Peer) SendHandshakeInitiation(isRetry bool) error {
 		if peer.device.version == VersionAwgSpecialHandshake {
 			peer.device.awg.Mux.RLock()
 			// set junks depending on packet type
-			junks = peer.device.awg.HandshakeHandler.GenerateSpecialJunk()
+			junks = peer.device.awg.HandshakeHandler.GenerateSpecialJunk(&peer.device.awg)
 			if junks == nil {
-				junks = peer.device.awg.HandshakeHandler.GenerateControlledJunk()
+				junks = peer.device.awg.HandshakeHandler.GenerateControlledJunk(&peer.device.awg)
 				if junks != nil {
 					peer.device.log.Verbosef("%v - Controlled junks sent", peer)
 				}
