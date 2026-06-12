@@ -918,6 +918,9 @@ func (device *Device) ProcessAWGPacket(size int, packet *[]byte, buffer *[MaxMes
 }
 
 func (device *Device) getMsgType(packet *[]byte, junkSize int) (uint32, error) {
+	if len(*packet) < junkSize+4 {
+		return 0, fmt.Errorf("packet too short for junk size: len=%d junk=%d", len(*packet), junkSize)
+	}
 	msgTypeValue := binary.LittleEndian.Uint32((*packet)[junkSize : junkSize+4])
 	msgType, err := device.awg.GetMagicHeaderMinFor(msgTypeValue)
 
