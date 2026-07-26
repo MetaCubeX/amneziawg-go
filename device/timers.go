@@ -284,7 +284,11 @@ func (device *Device) keyRefreshTimeoutReceiving() time.Duration {
 		rekeyTimeout = time.Duration(t.Lo()) * time.Second
 	}
 
-	return max(0, rejectAfterTime-keepaliveTimeout-rekeyTimeout)
+	t := rejectAfterTime - keepaliveTimeout - rekeyTimeout
+	if t < 0 {
+		return 0
+	}
+	return t
 }
 
 func (device *Device) keychainExpireTime() time.Duration {

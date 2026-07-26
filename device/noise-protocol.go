@@ -635,7 +635,7 @@ func (device *Device) JunkPackets() [][]byte {
 	min := device.junk.min.Load()
 	max := device.junk.max.Load()
 
-	for range device.junk.count.Load() {
+	for i := uint32(0); i < device.junk.count.Load(); i++ {
 		buf := make([]byte, min+fastrandn(max-min))
 		rand.Read(buf)
 		bufs = append(bufs, buf)

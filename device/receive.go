@@ -100,13 +100,13 @@ func (device *Device) RoutineReceiveIncoming(
 		typeHashBuf [4]byte
 	)
 
-	for i := range maxBatchSize {
+	for i := 0; i < maxBatchSize; i++ {
 		bufsArrs[i] = device.GetMessageBuffer()
 		bufs[i] = bufsArrs[i][:]
 	}
 
 	defer func() {
-		for i := range maxBatchSize {
+		for i := 0; i < maxBatchSize; i++ {
 			if bufsArrs[i] != nil {
 				device.PutMessageBuffer(bufsArrs[i])
 			}
@@ -148,7 +148,7 @@ func (device *Device) RoutineReceiveIncoming(
 			}
 
 			typeHash := typeHashBuf[:]
-			clear(typeHash)
+			clearArray(typeHash)
 			if cip != nil {
 				cip.XORKeyStream(typeHash, typeHash)
 			}
@@ -587,7 +587,7 @@ func (peer *Peer) RoutineSequentialReceiver(maxBatchSize int) {
 }
 
 func applyHash(dst, src, hash []byte) {
-	for i := range len(dst) {
+	for i := 0; i < len(dst); i++ {
 		dst[i] = src[i] ^ hash[i]
 	}
 }

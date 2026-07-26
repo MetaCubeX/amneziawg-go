@@ -12,7 +12,6 @@ import (
 	"errors"
 	"net"
 	"os"
-	"slices"
 	"sync"
 	"time"
 
@@ -567,9 +566,9 @@ func (device *Device) RoutineEncryption(id int) {
 
 			// append trailing zeroes
 			oldLen := len(elem.packet)
-			elem.packet = slices.Grow(elem.packet, paddingSize)
+			elem.packet = slicesGrow(elem.packet, paddingSize)
 			elem.packet = elem.packet[:oldLen+paddingSize]
-			clear(elem.packet[oldLen:])
+			clearArray(elem.packet[oldLen:])
 
 			// encrypt content and release to consumer
 

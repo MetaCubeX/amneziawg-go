@@ -1,6 +1,6 @@
 module github.com/metacubex/amneziawg-go
 
-go 1.25.0
+go 1.20
 
 require (
 	github.com/metacubex/wireguard-go v0.0.0-20250820062549-a6cecdd7f57f
