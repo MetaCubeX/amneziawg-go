@@ -8,7 +8,7 @@ package device
 import (
 	"fmt"
 
-	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
+	"github.com/metacubex/wireguard-go/tun"
 )
 
 const DefaultMTU = 1420

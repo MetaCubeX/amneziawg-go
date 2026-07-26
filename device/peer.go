@@ -12,7 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/amnezia-vpn/amneziawg-go/v3/conn"
+	"github.com/metacubex/wireguard-go/conn"
 )
 
 type Peer struct {
