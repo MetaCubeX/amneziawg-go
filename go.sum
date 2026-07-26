@@ -1,3 +1,5 @@
+github.com/metacubex/randv2 v0.2.0 h1:uP38uBvV2SxYfLj53kuvAjbND4RUDfFJjwr4UigMiLs=
+github.com/metacubex/randv2 v0.2.0/go.mod h1:kFi2SzrQ5WuneuoLLCMkABtiBu6VRrMrWFqSPyj2cxY=
 github.com/metacubex/wireguard-go v0.0.0-20250820062549-a6cecdd7f57f h1:FGBPRb1zUabhPhDrlKEjQ9lgIwQ6cHL4x8M9lrERhbk=
 github.com/metacubex/wireguard-go v0.0.0-20250820062549-a6cecdd7f57f/go.mod h1:oPGcV994OGJedmmxrcK9+ni7jUEMGhR+uVQAdaduIP4=
 golang.org/x/crypto v0.33.0 h1:IOBPskki6Lysi0lo9qQvbxiQ+FvsCC/YWOecCHAixus=
