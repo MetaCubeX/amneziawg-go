@@ -146,7 +146,10 @@ func (peer *Peer) SendHandshakeInitiation(isRetry bool) error {
 	sendBuffer = append(sendBuffer, peer.device.JunkPackets()...)
 
 	padding := int(peer.device.paddings.init.Load())
-	trailerLen := max(peer.randomTrailer(padding+MessageInitiationSize), 0)
+	trailerLen := peer.randomTrailer(padding + MessageInitiationSize)
+	if trailerLen < 0 {
+		trailerLen = 0
+	}
 
 	buf := make([]byte, padding+MessageInitiationSize+trailerLen)
 
@@ -196,7 +199,10 @@ func (peer *Peer) SendHandshakeResponse() error {
 	}
 
 	padding := int(peer.device.paddings.response.Load())
-	trailerLen := max(peer.randomTrailer(padding+MessageResponseSize), 0)
+	trailerLen := peer.randomTrailer(padding + MessageResponseSize)
+	if trailerLen < 0 {
+		trailerLen = 0
+	}
 
 	buf := make([]byte, padding+MessageResponseSize+trailerLen)
 
@@ -260,7 +266,10 @@ func (device *Device) SendHandshakeCookie(initiatingElem *QueueHandshakeElement)
 	}
 
 	padding := int(device.paddings.cookie.Load())
-	trailerLen := max(device.randomTrailer(padding+MessageCookieReplySize), 0)
+	trailerLen := device.randomTrailer(padding + MessageCookieReplySize)
+	if trailerLen < 0 {
+		trailerLen = 0
+	}
 
 	buf := make([]byte, padding+MessageCookieReplySize+trailerLen)
 
